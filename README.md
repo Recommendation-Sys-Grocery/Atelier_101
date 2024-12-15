@@ -71,7 +71,8 @@ Cet atelier vous guidera à travers l'exploration, la création et la manipulati
 ## 3. Requêtes de base avec Cypher
 
 Cypher est le langage de requêtes de Neo4j. Voici quelques exemples pour commencer :
-###visualiser le schema du graphe:
+
+### Visualiser le schema du graphe:
 ```
 // What is related, and how
 CALL db.schema.visualization()
