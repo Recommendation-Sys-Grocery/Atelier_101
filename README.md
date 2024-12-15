@@ -77,6 +77,15 @@ Cypher est le langage de requêtes de Neo4j. Voici quelques exemples pour commen
 // What is related, and how
 CALL db.schema.visualization()
 ```
+### Découvrir le graphe: 
+```
+// List node labels
+CALL db.labels()
+```
+```
+// List relationship types
+CALL db.relationshipTypes()
+```
 ### Trouver un acteur :
 ```cypher
 MATCH (a:Person {name:'Tom Hanks'}) RETURN a
