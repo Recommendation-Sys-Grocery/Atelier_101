@@ -286,8 +286,6 @@ RETURN r;
 
     ```cypher
     :params {nom: 'Keanu Reeves'}
-    MATCH (p:Person { name: $nom })
-    RETURN p
     ```
      ```cypher
     MATCH (p:Person { name: $nom })
