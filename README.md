@@ -92,359 +92,197 @@ La base de données **Movie Graph** contient les éléments suivants :
   - `REVIEWED` : Une personne a évalué un film.
   - `KNOWS` : Une personne connaît une autre.
 
-### **2. Création de Nœuds et Relations**
 
-#### **2.1. Création de Nœuds Simples**
+### 1. **Pattern simple :**
+Un pattern simple correspond à un chemin unique entre des nœuds liés par une relation.
 
-**Exemple : Création d'une personne**
-
+#### Exemple de pattern simple :
 ```cypher
-CREATE (p:Person { name: 'Brie Larson', born: 1989 })
-RETURN p
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+RETURN a, m;
 ```
+**Explication :**
+- Ce modèle recherche un chemin entre un **Person** (acteur) et un **Movie** auquel il a participé via la relation **ACTED_IN**.
+- Le résultat retourné contient les acteurs et les films dans lesquels ils ont joué.
 
-**Exemple : Création d'un film**
+### 2. **Pattern complexe :**
+Un pattern complexe inclut plusieurs chemins ou relations.
 
+#### Exemple de pattern complexe :
 ```cypher
-CREATE (m:Movie { title: 'The Matrix', released: 1999 })
-RETURN m
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie)<-[:DIRECTED]-(d:Person)
+RETURN a, m, d;
 ```
+**Explication :**
+- Ce modèle recherche un chemin entre un **Person** (acteur), un **Movie**, et un autre **Person** (réalisateur) qui a dirigé le film.
+- Cela permet de récupérer les acteurs, les films et les réalisateurs associés.
 
-#### **2.2. Création de Relations**
+### 3. **Syntaxe des nœuds :**
+- **Nœud anonyme :** Représente un nœud sans label spécifique.
+  ```cypher
+  MATCH ()-[:ACTED_IN]->()
+  RETURN DISTINCT labels(n);
+  ```
 
-**Exemple : Relier une personne à un film en tant qu'acteur**
+- **Nœud avec un label :** Représente un nœud avec un label spécifique.
+  ```cypher
+  MATCH (:Movie)
+  RETURN COUNT(*) AS number_of_movies;
+  ```
 
+- **Nœud avec des propriétés :** Représente un nœud avec un label et des propriétés spécifiques.
+  ```cypher
+  MATCH (:Movie {title: 'The Matrix'})
+  RETURN *;
+  ```
+
+### 4. **Syntaxe des relations :**
+- **Relation non dirigée :** Représente une relation sans direction spécifiée.
+  ```cypher
+  MATCH (:Person)-[:KNOWS]-(p:Person)
+  RETURN p;
+  ```
+
+- **Relation dirigée :** Spécifie une direction dans la relation.
+  ```cypher
+  MATCH (:Person)-[:ACTED_IN]->(:Movie)
+  RETURN COUNT(*) AS movies_played_in;
+  ```
+
+#### Exemple de relation avec des propriétés :
 ```cypher
-MATCH (p:Person { name: 'Keanu Reeves' }), (m:Movie { title: 'The Matrix' })
-CREATE (p)-[:ACTED_IN { roles: ['Neo'] }]->(m)
-RETURN p, m
+MATCH (:Person)-[r:ACTED_IN]->(:Movie)
+WHERE r.roles CONTAINS 'Neo'
+RETURN r;
 ```
+**Explication :**
+- Cette requête trouve les acteurs qui ont joué le rôle de **Neo** dans un film, en utilisant une propriété de relation **roles**.
+
+### 5. **Principales Clauses Cypher :**
+
+#### Clauses de recherche :
+
+- **MATCH :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  WHERE m.title = 'The Matrix'
+  RETURN a;
+  ```
+  **Explication :** Recherche les acteurs ayant joué dans "The Matrix".
+
+- **OPTIONAL MATCH :**
+  ```cypher
+  OPTIONAL MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  WHERE m.title = 'The Matrix'
+  RETURN a, m;
+  ```
+  **Explication :** Recherche les acteurs d'un film, mais inclut également les résultats même si le film n'est pas trouvé pour tous les acteurs.
+
+#### Clauses de création et mise à jour :
+
+- **CREATE :**
+  ```cypher
+  CREATE (a:Person {name: 'Keanu Reeves'})-[:ACTED_IN]->(m:Movie {title: 'The Matrix'})
+  RETURN a, m;
+  ```
+
+- **MERGE :**
+  ```cypher
+  MERGE (a:Person {name: 'Keanu Reeves'})
+  MERGE (m:Movie {title: 'The Matrix'})
+  MERGE (a)-[:ACTED_IN]->(m);
+  ```
+
+#### Clauses de suppression :
+
+- **DELETE :**
+  ```cypher
+  MATCH (a:Person)-[r:ACTED_IN]->(m:Movie)
+  DELETE r;
+  ```
+
+- **REMOVE :**
+  ```cypher
+  MATCH (a:Person)-[r:ACTED_IN]->(m:Movie)
+  REMOVE r.roles;
+  ```
+
+#### Clauses de filtrage et agrégation :
+
+- **WHERE :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  WHERE m.year > 2000
+  RETURN a, m;
+  ```
+
+- **DISTINCT :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  RETURN DISTINCT a;
+  ```
+
+- **ORDER BY :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  ORDER BY m.year DESC
+  RETURN a, m;
+  ```
+
+- **COLLECT :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  RETURN a.name, COLLECT(m.title) AS movies;
+  ```
+
+#### Clauses de pagination :
+
+- **SKIP :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  SKIP 10 LIMIT 5
+  RETURN a, m;
+  ```
+
+- **LIMIT :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  LIMIT 5
+  RETURN a, m;
+  ```
+
+#### Clauses pour combiner et analyser des requêtes :
+
+- **UNION :**
+  ```cypher
+  MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  RETURN a, m
+  UNION
+  MATCH (a:Person)-[:DIRECTED]->(m:Movie)
+  RETURN a, m;
+  ```
+
+- **EXPLAIN :**
+  ```cypher
+  EXPLAIN MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  RETURN a, m;
+  ```
+
+- **PROFILE :**
+  ```cypher
+  PROFILE MATCH (a:Person)-[:ACTED_IN]->(m:Movie)
+  RETURN a, m;
+  ```
+
+#### Appel de procédures :
+
+- **CALL :**
+  ```cypher
+  CALL db.info()
+  YIELD name, value
+  RETURN name, value;
+  ```
 
-**Exemple : Relier une personne à un film en tant que réalisateur**
-
-```cypher
-MATCH (p:Person { name: 'Lana Wachowski' }), (m:Movie { title: 'The Matrix' })
-CREATE (p)-[:DIRECTED]->(m)
-RETURN p, m
-```
-
-### **3. Requêtes de Recherche**
-
-#### **3.1. Recherche de Personnes ayant Agi dans un Film Spécifique**
-
-**Objectif :** Trouver tous les acteurs ayant joué dans le film "Inception".
-
-```cypher
-MATCH (p:Person)-[:ACTED_IN]->(m:Movie { title: 'Inception' })
-RETURN p.name AS Acteur
-```
-
-#### **3.2. Trouver les Films Réalisés par une Personne**
-
-**Objectif :** Lister tous les films réalisés par "Christopher Nolan".
-
-```cypher
-MATCH (p:Person { name: 'Christopher Nolan' })-[:DIRECTED]->(m:Movie)
-RETURN m.title AS Film, m.released AS Année
-```
-
-#### **3.3. Identifier les Relations de Connaissance entre Deux Personnes**
-
-**Objectif :** Vérifier si "Leonardo DiCaprio" connaît "Ellen Page".
-
-```cypher
-MATCH (p1:Person { name: 'Leonardo DiCaprio' })-[:KNOWS]->(p2:Person { name: 'Ellen Page' })
-RETURN p1.name AS Personne1, p2.name AS Personne2
-```
-
-### **4. Clauses de Filtrage et Agrégation**
-
-#### **4.1. Filtrer les Résultats avec WHERE**
-
-**Objectif :** Récupérer les films sortis après l'année 2000.
-
-```cypher
-MATCH (m:Movie)
-WHERE m.released > 2000
-RETURN m.title AS Film, m.released AS Année
-```
-
-#### **4.2. Éliminer les Doublons avec DISTINCT**
-
-**Objectif :** Lister les genres de films distincts dans lesquels "Leonardo DiCaprio" a joué.
-
-```cypher
-MATCH (p:Person { name: 'Leonardo DiCaprio' })-[:ACTED_IN]->(m:Movie)
-RETURN DISTINCT m.genre AS Genre
-```
-
-#### **4.3. Trier les Résultats avec ORDER BY**
-
-**Objectif :** Trier les films par année de sortie décroissante.
-
-```cypher
-MATCH (m:Movie)
-RETURN m.title AS Film, m.released AS Année
-ORDER BY m.released DESC
-```
-
-#### **4.4. Agréger les Données avec COLLECT**
-
-**Objectif :** Regrouper les films par acteur.
-
-```cypher
-MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
-RETURN p.name AS Acteur, COLLECT(m.title) AS Films
-```
-
-### **5. Clauses de Pagination**
-
-#### **5.1. Sauter un Nombre de Résultats avec SKIP**
-
-**Objectif :** Sauter les 10 premiers résultats et récupérer les suivants.
-
-```cypher
-MATCH (p:Person)
-RETURN p.name AS Personne
-SKIP 10
-```
-
-#### **5.2. Limiter le Nombre de Résultats avec LIMIT**
-
-**Objectif :** Limiter les résultats à 5 personnes.
-
-```cypher
-MATCH (p:Person)
-RETURN p.name AS Personne
-LIMIT 5
-```
-
-#### **5.3. Combinaison de SKIP et LIMIT**
-
-**Objectif :** Sauter les 10 premiers résultats et récupérer les 5 suivants.
-
-```cypher
-MATCH (p:Person)
-RETURN p.name AS Personne
-SKIP 10
-LIMIT 5
-```
-
-### **6. Combinaison et Analyse de Requêtes**
-
-#### **6.1. Combiner des Requêtes avec UNION**
-
-**Objectif :** Récupérer les personnes qui ont soit joué dans "Inception" soit réalisé "Inception".
-
-```cypher
-MATCH (p:Person)-[:ACTED_IN]->(m:Movie { title: 'Inception' })
-RETURN p.name AS Personne
-UNION
-MATCH (p:Person)-[:DIRECTED]->(m:Movie { title: 'Inception' })
-RETURN p.name AS Personne
-```
-
-#### **6.2. Analyser le Plan d’Exécution avec EXPLAIN**
-
-**Objectif :** Afficher le plan d'exécution de la requête qui trouve les amis d'un acteur ayant joué dans "Inception".
-
-```cypher
-EXPLAIN
-MATCH (p:Person)-[:ACTED_IN]->(m:Movie { title: 'Inception' })-[:ACTED_IN]->(coActor:Person)
-RETURN coActor.name AS Collègues
-```
-
-#### **6.3. Profilage d’une Requête avec PROFILE**
-
-**Objectif :** Exécuter et afficher des informations détaillées sur la requête qui trouve les films suivis par "Alice".
-
-```cypher
-PROFILE
-MATCH (a:Person { name: 'Alice' })-[:FOLLOWS]->(m:Movie)
-RETURN m.title AS Film, m.released AS Année
-```
-
-### **7. Appel de Procédures**
-
-#### **7.1. Utiliser une Procédure pour Trouver le Plus Court Chemin**
-
-**Objectif :** Trouver le plus court chemin de connaissances entre "Alice" et "Bob".
-
-```cypher
-CALL algo.shortestPath.stream(
-  'MATCH (p:Person { name: "Alice" }) RETURN id(p) AS id',
-  'MATCH (p:Person { name: "Bob" }) RETURN id(p) AS id',
-  'KNOWS'
-)
-YIELD nodeId, cost
-MATCH (n) WHERE id(n) = nodeId
-RETURN n.name AS Personne, cost
-```
-
-#### **7.2. Exemple Simple d’Appel de Procédure**
-
-**Objectif :** Récupérer tous les labels présents dans la base de données.
-
-```cypher
-CALL db.labels()
-YIELD label
-RETURN label
-```
-
-### **8. Mise à Jour et Suppression des Données**
-
-#### **8.1. Mise à Jour des Propriétés d’un Nœud**
-
-**Objectif :** Mettre à jour l'année de sortie du film "Inception" à 2010.
-
-```cypher
-MATCH (m:Movie { title: 'Inception' })
-SET m.released = 2010
-RETURN m.title AS Film, m.released AS NouvelleAnnée
-```
-
-#### **8.2. Suppression d’un Nœud**
-
-**Objectif :** Supprimer le film "The Matrix" de la base de données.
-
-```cypher
-MATCH (m:Movie { title: 'The Matrix' })
-DELETE m
-RETURN 'Film supprimé' AS Message
-```
-
-#### **8.3. Suppression d’une Relation**
-
-**Objectif :** Supprimer la relation `FOLLOWS` entre "Alice" et "Bob".
-
-```cypher
-MATCH (a:Person { name: 'Alice' })-[r:FOLLOWS]->(b:Person { name: 'Bob' })
-DELETE r
-RETURN 'Relation FOLLOWS supprimée entre Alice et Bob' AS Message
-```
-
-### **9. Patterns dans Cypher**
-
-#### **9.1. Pattern Simple**
-
-**Exemple : Création d'un nœud simple**
-
-```cypher
-CREATE (p:Person { name: 'Brie Larson', born: 1989 })
-RETURN p
-```
-
-#### **9.2. Pattern Complexe**
-
-**Exemple : Création de relations multiples entre nœuds**
-
-```cypher
-MATCH (a:Person { name: 'Alice' }), 
-      (b:Person { name: 'Bob' }), 
-      (c:Person { name: 'Charlie' }), 
-      (d:Interest { name: 'Graph Databases' })
-CREATE (a)-[:FRIEND_OF]->(b)-[:WORKS_WITH]->(c),
-       (a)-[:LIKES]->(d)
-RETURN a, b, c, d
-```
-
-### **10. Création et Mise à Jour avec MERGE**
-
-#### **10.1. Utilisation de MERGE pour Créer ou Mettre à Jour un Nœud**
-
-**Exemple : Créer ou mettre à jour une personne**
-
-```cypher
-MERGE (a:Person { name: 'Brie Larson' })
-ON CREATE SET a.born = 1989
-ON MATCH SET a.stars = COALESCE(a.stars, 0) + 1
-RETURN a
-```
-
-### **11. Indexation et Contraintes**
-
-#### **11.1. Création d’Index**
-
-**Exemple : Créer un index sur le nom des personnes et le titre des films**
-
-```cypher
-CREATE INDEX ON :Person(name)
-CREATE INDEX ON :Movie(title)
-```
-
-#### **11.2. Création de Contraintes d’Unicité**
-
-**Exemple : Assurer l’unicité des noms des personnes et des titres des films**
-
-```cypher
-CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE
-CREATE CONSTRAINT ON (m:Movie) ASSERT m.title IS UNIQUE
-```
-
-### **12. Utilisation de Paramètres dans les Requêtes**
-
-**Exemple : Requête dynamique avec paramètres**
-
-```cypher
-MATCH (p:Person { name: $nom })
-RETURN p
-```
-
-**Utilisation avec un client Cypher (ex. Neo4j Browser) :**
-
-```json
-{
-  "nom": "Tom Hanks"
-}
-```
-
----
-
-## Explications des Concepts Clés
-
-### **a. MATCH et WHERE**
-
-- **MATCH** : Utilisé pour spécifier le motif (pattern) à rechercher dans le graphe.
-- **WHERE** : Ajoute des conditions supplémentaires pour filtrer les résultats.
-
-### **b. RETURN**
-
-- Spécifie les données à retourner après la correspondance du motif.
-
-### **c. CREATE**
-
-- Utilisé pour créer de nouveaux nœuds et relations dans le graphe.
-
-### **d. SET**
-
-- Permet de mettre à jour les propriétés des nœuds ou relations existants.
-
-### **e. DELETE**
-
-- Supprime des nœuds ou relations du graphe.
-
-### **f. UNION**
-
-- Combine les résultats de plusieurs requêtes en éliminant les doublons.
-
-### **g. EXPLAIN et PROFILE**
-
-- **EXPLAIN** : Affiche le plan d'exécution d'une requête sans l'exécuter.
-- **PROFILE** : Exécute la requête et fournit des informations détaillées sur son exécution.
-
-### **h. CALL**
-
-- Permet d'appeler des procédures stockées ou des fonctions intégrées dans Neo4j.
-
-### **i. DISTINCT**
-
-- Élimine les doublons dans les résultats retournés.
-
-### **j. Agrégation (COUNT, AVG, SUM, etc.)**
-
-- Utilisée pour effectuer des calculs sur les données, comme compter le nombre de films par réalisateur.
-
----
 
 ## Conseils Supplémentaires
 
