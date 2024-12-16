@@ -289,6 +289,11 @@ RETURN r;
     MATCH (p:Person { name: $nom })
     RETURN p
     ```
+     ```cypher
+    MATCH (p:Person { name: $nom })
+    RETURN p
+    ```
+
 
 4. **Exploration Interactive :** Utilisez Neo4j Browser ou Neo4j Bloom pour visualiser les résultats des requêtes de manière interactive.
 
