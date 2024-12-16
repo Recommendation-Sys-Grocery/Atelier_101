@@ -160,7 +160,7 @@ RETURN r;
   MERGE (a)-[:ACTED_IN]->(m);
   ```
 
-#### Clauses de suppression :
+#### Clauses de suppression : (Essayer d'éviter ces commandes à l'instant pour continuer l'atelier)
 
 - **DELETE :**
   ```cypher
