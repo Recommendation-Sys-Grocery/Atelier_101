@@ -6,18 +6,6 @@ Bienvenue dans cet atelier sur Neo4j où vous apprendrez à explorer et interagi
 
 ## Table des Matières
 
-1. [Introduction à Neo4j et Movie Graph](#introduction)
-2. [Installation de Neo4j](#installation)
-3. [Requêtes de base avec Cypher](#requetes-de-base)
-4. [Manipulation des données](#manipulation-des-donnees)
-   - [Ajout de données](#ajout-de-donnees)
-   - [Suppression de données](#suppression-de-donnees)
-   - [Mise à jour et MERGE](#mise-a-jour-et-merge)
-5. [Requêtes avancées](#requetes-avancees)
-   - [Recommandations et recherche complexe](#recommandations)
-   - [Chemin de Bacon](#chemin-de-bacon)
-6. [Ressources supplémentaires](#ressources)
-
 ---
 
 <a name="introduction"></a>
@@ -67,31 +55,9 @@ Cet atelier vous guidera à travers l'exploration, la création et la manipulati
 ---
 
 <a name="requetes-de-base"></a>
-Bien sûr ! Voici la section **Atelier** formatée en Markdown pour votre fichier `README.md`. Cette section guide les utilisateurs à travers diverses opérations sur la base de données **Movie Graph** en utilisant le langage Cypher.
 
----
-
-## Atelier : Manipulation de la Base de Données Movie Graph avec Cypher
-
+## Cypher
 Cypher est le langage de requêtes de Neo4j, conçu pour interagir facilement avec des données stockées sous forme de graphes. Cet atelier vous guidera à travers l'exploration, la création et la manipulation des données dans la base de données **Movie Graph**.
-
-### **1. Introduction à la Movie Graph**
-
-La base de données **Movie Graph** contient les éléments suivants :
-
-- **Nœuds :**
-  - `Person` : Acteurs, réalisateurs, producteurs...
-  - `Movie` : Films avec des détails comme le titre, l'année de sortie, etc.
-
-- **Relations :**
-  - `ACTED_IN` : Une personne a joué dans un film.
-  - `DIRECTED` : Une personne a réalisé un film.
-  - `PRODUCED` : Une personne a produit un film.
-  - `WROTE` : Une personne a écrit un film.
-  - `FOLLOWS` : Une personne suit une autre.
-  - `REVIEWED` : Une personne a évalué un film.
-  - `KNOWS` : Une personne connaît une autre.
-
 
 ### 1. **Pattern simple :**
 Un pattern simple correspond à un chemin unique entre des nœuds liés par une relation.
@@ -118,6 +84,7 @@ RETURN a, m, d;
 - Cela permet de récupérer les acteurs, les films et les réalisateurs associés.
 
 ### 3. **Syntaxe des nœuds :**
+
 - **Nœud anonyme :** Représente un nœud sans label spécifique.
   ```cypher
   MATCH ()-[:ACTED_IN]->()
@@ -282,6 +249,9 @@ RETURN r;
   YIELD name, value
   RETURN name, value;
   ```
+
+---
+
 
 
 ## Conseils Supplémentaires
