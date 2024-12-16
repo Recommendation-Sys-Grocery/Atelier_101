@@ -87,7 +87,7 @@ RETURN a, m, d;
 
 - **Nœud anonyme :** Représente un nœud sans label spécifique.
   ```cypher
-  MATCH ()-[:ACTED_IN]->()
+  MATCH (n)-[:ACTED_IN]->()
   RETURN DISTINCT labels(n);
   ```
 
@@ -99,8 +99,8 @@ RETURN a, m, d;
 
 - **Nœud avec des propriétés :** Représente un nœud avec un label et des propriétés spécifiques.
   ```cypher
-  MATCH (:Movie {title: 'The Matrix'})
-  RETURN *;
+  MATCH (m:Movie {title: 'The Matrix'})
+  RETURN m.title, m.year;
   ```
 
 ### 4. **Syntaxe des relations :**
@@ -173,6 +173,8 @@ RETURN r;
   MATCH (a:Person)-[r:ACTED_IN]->(m:Movie)
   REMOVE r.roles;
   ```
+- DELETE	Supprime complètement un nœud ou une relation de la base de données.
+- REMOVE	Supprime une propriété d'une relation ou d'un nœud, mais laisse la relation/nœud intact(e).
 
 #### Clauses de filtrage et agrégation :
 
@@ -243,11 +245,15 @@ RETURN r;
 
 #### Appel de procédures :
 
-- **CALL :**
+- **CALL : (exemple)**
   ```cypher
   CALL db.info()
   YIELD name, value
   RETURN name, value;
+  ```
+  - **SHOW :**
+  ```cypher
+  SHOW PROCEDURES yield name, description, signature
   ```
 
 ---
@@ -259,20 +265,27 @@ RETURN r;
 1. **Indexation :** Pour améliorer les performances des requêtes, créez des index sur les propriétés fréquemment recherchées.
 
     ```cypher
-    CREATE INDEX ON :Person(name)
-    CREATE INDEX ON :Movie(title)
+    CREATE INDEX FOR (p:Person) ON (p.name);
+    CREATE INDEX FOR (m:Movie) ON (m.title);
     ```
+     ```cypher
+     SHOW INDEXES;
+    ```
+   
+
 
 2. **Contraintes d’Unicité :** Assurez-vous que certaines propriétés, comme le nom des films ou des personnes, sont uniques.
 
     ```cypher
-    CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE
-    CREATE CONSTRAINT ON (m:Movie) ASSERT m.title IS UNIQUE
+    CREATE CONSTRAINT FOR (p:Person) REQUIRE p.name IS UNIQUE;
+     CREATE CONSTRAINT FOR (m:Movie) REQUIRE m.title IS UNIQUE;
+
     ```
 
 3. **Utilisation de Paramètres :** Pour rendre les requêtes plus dynamiques et sécurisées, utilisez des paramètres.
 
     ```cypher
+    :params {nom: 'Keanu Reeves'}
     MATCH (p:Person { name: $nom })
     RETURN p
     ```
@@ -285,16 +298,7 @@ RETURN r;
 
 ## Conclusion
 
-Cet atelier présente une série d'exemples de requêtes Cypher pour la base de données **Movie Graph**. En maîtrisant ces requêtes, vous pourrez explorer, créer et manipuler efficacement les données dans un environnement de base de données graphe. N'hésitez pas à expérimenter avec ces requêtes et à les adapter à vos besoins spécifiques. Si vous avez des questions supplémentaires ou besoin de précisions sur certains aspects, je suis à votre disposition pour vous aider !
-
----
-
-## Bonnes Pratiques pour l'Atelier
-
-- **Organisation des Fichiers :** Placez toutes vos images dans un dossier dédié, par exemple `images/`, et référencez-les correctement dans vos requêtes si nécessaire.
-- **Versionnement :** Utilisez un système de contrôle de version comme Git pour suivre les modifications apportées à votre fichier `README.md`.
-- **Clarté des Exemples :** Assurez-vous que les exemples de requêtes sont clairs et faciles à suivre, avec des explications concises.
-- **Validation des Requêtes :** Testez toutes les requêtes dans Neo4j Browser pour vous assurer qu'elles fonctionnent comme prévu avant de les inclure dans le README.
+Cet atelier présente une série d'exemples de requêtes Cypher pour la base de données **Movie Graph**. En maîtrisant ces requêtes, vous pourrez explorer, créer et manipuler efficacement les données dans un environnement de base de données graphe. N'hésitez pas à expérimenter avec ces requêtes et à les adapter à vos besoins spécifiques.
 
 ---
 
