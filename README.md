@@ -116,7 +116,7 @@ RETURN a, m, d;
   RETURN COUNT(*) AS movies_played_in;
   ```
 
-#### Exemple de relation avec des propriétés :
+#### Exemple de relation avec des propriétés : (il faut créer la relation avec les properties si le cas échoue
 ```cypher
 MATCH (:Person)-[r:ACTED_IN]->(:Movie)
 WHERE r.roles CONTAINS 'Neo'
