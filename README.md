@@ -1,4 +1,4 @@
-# Atelier Neo4j: Movie Graph By Wissal charraki 1 Fatima LAAMRI
+# Atelier Neo4j: Movie Graph By Wissal charraki & Fatima LAAMRI
 
 Bienvenue dans cet atelier sur Neo4j où vous apprendrez à explorer et interagir avec une base de données graphe basée sur les films et les relations entre acteurs, réalisateurs, et autres personnes de l'industrie cinématographique. Ce tutoriel couvre les bases pour les débutants et inclut des exemples pratiques avec la Movie Database préexistante.
 
